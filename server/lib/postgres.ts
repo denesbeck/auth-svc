@@ -9,7 +9,7 @@ export default function postgres() {
     return new Pool({
       connectionString:
         process.env.DATABASE_URL ||
-        "postgres://postgres:postgres@localhost:5432/nexgen_dev",
+        "postgres://postgres:postgres@localhost:5432/csync_auth_dev",
       ssl: process.env.DATABASE_URL
         ? {
             sslmode: "verify-full",
