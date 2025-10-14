@@ -9,9 +9,6 @@ router.post("/register", register);
 router.get("/logout", (_req, res) => {
   res.json({ message: "Logged out successfully" });
 });
-router.get("/refresh", (_req, res) => {
-  res.json({ message: "Token refreshed successfully" });
-});
 router.post("/forgot-password", (_req, res) => {
   res.json({ message: "Password reset link sent" });
 });
