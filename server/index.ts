@@ -5,25 +5,45 @@ import path from "path";
 dotenv.config();
 
 // Import middlewares
-import { corsMiddleware } from "./middlewares/cors";
-import { logger } from "./middlewares/logger";
+import { corsMiddleware } from "./middleware/cors";
+import { headersMiddleware } from "./middleware/headers";
+import { jwtAuthMiddleware } from "./middleware/jwtAuth";
+import { loggerMiddleware } from "./middleware/logger";
+
+// Import routes
+import auth from "./routes/authRoutes";
 
 const app = express();
 const port = process.env.PORT || 4000;
 
 app.use(corsMiddleware); // Enable CORS middleware
+app.use(headersMiddleware); // Enable headers middleware
+app.use(loggerMiddleware); // Enable logging middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(logger); // Enable logging middleware
-
 // Health check endpoint
-app.get("/api/health", (_req: Request, res: Response) => {
+app.get("/api/v1/health", (_req: Request, res: Response) => {
   res.json({
     status: "ok",
+    uptime: process.uptime(),
     timestamp: new Date().toISOString(),
   });
 });
+
+// Authentication route
+app.use("/api/v1/auth", auth);
+
+// Example protected route
+app.get(
+  "/api/v1/protected",
+  jwtAuthMiddleware,
+  (_req: Request, res: Response) => {
+    res.json({
+      message: "This is a protected route.",
+    });
+  },
+);
 
 // Serve static files when in production
 if (process.env.NODE_ENV === "production") {
