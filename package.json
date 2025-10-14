@@ -6,7 +6,10 @@
     "server:start": "npm start --workspace server",
     "client:dev": "npm run dev --workspace client",
     "client:build": "npm run build --workspace client",
-    "start": "npm run build --workspace client && npm start --workspace server"
+    "start": "npm run build --workspace client && npm start --workspace server",
+    "update:client": "npx npm-check-updates -u --workspace client && npm install --workspace client",
+    "update:server": "npx npm-check-updates -u --workspace server && npm install --workspace server",
+    "update:all": "npm run update:server && npm run update:client"
   },
   "private": true,
   "workspaces": [
