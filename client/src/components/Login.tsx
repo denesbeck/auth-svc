@@ -17,10 +17,9 @@ const Login = () => {
   const handleLogin = async () => {
     setLoading(true);
     const res = await login({ email, password });
-    if (res !== true)
+    if (res.success !== true)
       alert({
         id: "login",
-        title: "Error",
         message: res.message,
         severity: "error",
       });
