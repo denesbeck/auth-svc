@@ -1,10 +1,11 @@
 import express from "express";
 import { login, mfaConfirm, register } from "../controllers/authController";
+import { authValidator } from "../middleware/validators";
 
 const router = express.Router();
 
-router.get("/login", login);
-router.post("/register", register);
+router.post("/login", authValidator, login);
+router.post("/register", authValidator, register);
 router.post("/mfa-confirm", mfaConfirm);
 
 router.get("/logout", (_req, res) => {

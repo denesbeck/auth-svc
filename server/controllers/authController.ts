@@ -6,11 +6,18 @@ import crypto from "crypto";
 import logger from "../utils/logger";
 import chalk from "chalk";
 import { generate, validate } from "../lib/time2fa";
+import { validationResult } from "express-validator";
 
 const pgClient = postgres().getInstance();
 const redisClient = redis().getInstance();
 
 export const login = async (req: Request, res: Response) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+    return;
+  }
+
   const { username, password } = req.body;
   logger.debug(`Login process started for ${chalk.dim(username)}...`);
 
@@ -139,10 +146,17 @@ export const mfaConfirm = async (req: Request, res: Response) => {
   }
 
   logger.debug(`Token created for ${chalk.dim(username)}.`);
-  res.status(200).json({ token });
+  res.set("Authorization", `Bearer ${token}`);
+  res.redirect(process.env.REDIRECT_URL || "https://google.com");
 };
 
 export const register = async (req: Request, res: Response) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+    return;
+  }
+
   const { username, password } = req.body;
   logger.debug(`Registration process started for ${chalk.dim(username)}...`);
 
