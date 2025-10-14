@@ -137,3 +137,6 @@ dist
 
 # vite build output
 dist
+
+# local development
+local

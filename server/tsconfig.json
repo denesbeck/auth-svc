@@ -1,11 +1,25 @@
 {
+  "ts-node": {
+    "require": [
+      "tsconfig-paths/register"
+    ]
+  },
   "compilerOptions": {
     "module": "commonjs",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": true,
     "removeComments": true,
-    "outDir": "./dist/server"
+    "outDir": "./dist/server",
+    "baseUrl": ".",
+    "paths": {
+      "@routes/*": [
+        "./routes/*"
+      ],
+      "@controllers/*": [
+        "./controllers/*"
+      ]
+    }
   },
   "include": [
     "**/*.ts"

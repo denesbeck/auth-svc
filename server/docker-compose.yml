@@ -1,0 +1,21 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres
+    restart: always
+    shm_size: 256mb
+    container_name: postgres
+    hostname: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./local/docker/postgressql/data:/var/lib/postgresql/data
+  redis:
+    image: redis/redis-stack
+    container_name: redis-stack
+    hostname: redis-stack
+    ports:
+      - "6379:6379"
+      - "8001:8001"
