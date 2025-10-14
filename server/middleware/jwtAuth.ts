@@ -2,7 +2,6 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import redis from "../lib/redis";
 import logger from "../utils/logger";
-import chalk from "chalk";
 
 const redisClient = redis().getInstance();
 
@@ -19,26 +18,26 @@ export const jwtAuthMiddleware = async (
     return;
   }
 
-  let username;
+  let email;
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "jwt_secret");
-    username = (decoded as JwtPayload)?.username;
+    email = (decoded as JwtPayload)?.email;
   } catch (error) {
     logger.error("Invalid token.");
     res.status(401).json({ message: "Access denied. Invalid token." });
     return;
   }
 
-  if (!username) {
-    logger.error("Username missing.");
+  if (!email) {
+    logger.error("Email missing.");
     res.status(401).json({ message: "Access denied. Invalid token." });
     return;
   }
 
   try {
-    const redisToken = await redisClient.get(username);
+    const redisToken = await redisClient.get(email);
     if (redisToken !== token) {
-      logger.error(`Token mismatch for ${chalk.dim(username)}.`);
+      logger.error(`Token mismatch for \`${email}\`.`);
       res.status(401).json({ message: "Access denied. Invalid token." });
       return;
     }
