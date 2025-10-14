@@ -1,5 +1,5 @@
 import { InputAdornment, TextField } from "@mui/material";
-import { AlertBox, Button } from "../components";
+import { AlertBox, Button, Register } from "../components";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
@@ -12,6 +12,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isRegisterModalVisible, setIsRegisterModalVisible] = useState(false);
   const { alert } = useAlert();
 
   const handleLogin = async () => {
@@ -25,9 +26,13 @@ const Login = () => {
       });
     setLoading(false);
   };
+
   return (
     <div className="flex z-10 flex-col gap-8 justify-center items-center py-10 w-screen bg-white shadow-2xl min-h-[45vh] sm:rounded-4xl sm:min-w-[35rem] sm:max-w-[35vw] sm:w-[90vw]">
       <AlertBox />
+      {isRegisterModalVisible && (
+        <Register close={() => setIsRegisterModalVisible(false)} />
+      )}
       <div className="flex flex-col gap-2 items-center">
         <h1 className="text-4xl font-semibold text-transparent bg-clip-text from-cyan-300 via-indigo-500 to-blue-400 bg-linear-to-tr">
           Welcome back!
@@ -86,7 +91,7 @@ const Login = () => {
         />
         <Button
           icon={<RocketLaunchIcon className="mr-2" />}
-          action={() => console.log("Login")}
+          action={() => setIsRegisterModalVisible(true)}
           variant="secondary-outline"
           label="Register"
           wide={true}

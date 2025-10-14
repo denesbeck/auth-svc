@@ -1,7 +1,23 @@
 import Alert from "./Alert";
 import AlertBox from "./AlertBox";
+import Backdrop from "./Backdrop";
 import Button from "./Button";
+import Header from "./Header";
+import Info from "./Info";
 import Layout from "./Layout";
 import Login from "./Login";
+import Modal from "./Modal";
+import Register from "./Register";
 
-export { Alert, AlertBox, Button, Layout, Login };
+export {
+  Alert,
+  AlertBox,
+  Backdrop,
+  Button,
+  Header,
+  Info,
+  Layout,
+  Login,
+  Modal,
+  Register,
+};
