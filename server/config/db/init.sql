@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS public.users
     email text NOT NULL,
     salt text NOT NULL,
     password_hash text NOT NULL,
+    mfa_enabled boolean NOT NULL DEFAULT false,
+    mfa_secret text NOT NULL,
     created_at timestamp with time zone NOT NULL DEFAULT now(),
     CONSTRAINT users_pkey PRIMARY KEY (uuid),
     CONSTRAINT email_unique UNIQUE (email)

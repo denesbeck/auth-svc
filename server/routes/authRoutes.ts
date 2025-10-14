@@ -1,10 +1,11 @@
 import express from "express";
-import { login, register } from "../controllers/authController";
+import { login, mfaConfirm, register } from "../controllers/authController";
 
 const router = express.Router();
 
 router.get("/login", login);
 router.post("/register", register);
+router.post("/mfa-confirm", mfaConfirm);
 
 router.get("/logout", (_req, res) => {
   res.json({ message: "Logged out successfully" });

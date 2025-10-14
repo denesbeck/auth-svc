@@ -2,14 +2,11 @@ import { Totp, generateBackupCodes } from "time2fa";
 import crypto from "crypto";
 
 export const generate = (user: string) => {
-  const key = Totp.generateKey(
-    {
-      issuer: "csync",
-      user,
-    },
-    { algo: "sha256", secretSize: 32 },
-  );
-  return { key };
+  const key = Totp.generateKey({
+    issuer: "csync",
+    user,
+  });
+  return key;
 };
 
 export const validate = (secret: string, passcode: string) => {
