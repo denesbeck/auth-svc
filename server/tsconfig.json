@@ -10,16 +10,7 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": true,
     "removeComments": true,
-    "outDir": "./dist/server",
-    "baseUrl": ".",
-    "paths": {
-      "@routes/*": [
-        "./routes/*"
-      ],
-      "@controllers/*": [
-        "./controllers/*"
-      ]
-    }
+    "outDir": "./dist/server"
   },
   "include": [
     "**/*.ts"
