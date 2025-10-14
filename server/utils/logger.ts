@@ -2,29 +2,30 @@ import chalk from "chalk";
 import { format } from "date-fns";
 
 export default {
-  error: (message: string) =>
+  error: (...args: any[]) => {
     console.error(
       chalk.dim(format(new Date(), "yyyy-MM-dd HH:mm:ss")) +
-      chalk.red(" [ERROR] ") +
-      message,
-    ),
-  warn: (message: string) =>
+        chalk.red(" [ERROR] ") +
+        args.map((el) => JSON.stringify(el)).join(" "),
+    );
+  },
+  warn: (...args: any[]) =>
     console.warn(
       chalk.dim(format(new Date(), "yyyy-MM-dd HH:mm:ss")) +
-      chalk.yellow(" [WARN] ") +
-      message,
+        chalk.yellow(" [WARN] ") +
+        args.map((el) => JSON.stringify(el)).join(" "),
     ),
-  debug: (message: string) =>
+  debug: (...args: any[]) =>
     Boolean(process.env.DEBUG) &&
     console.debug(
       chalk.dim(format(new Date(), "yyyy-MM-dd HH:mm:ss")) +
-      chalk.blue(" [DEBUG] ") +
-      message,
+        chalk.blue(" [DEBUG] ") +
+        args.map((el) => JSON.stringify(el)).join(" "),
     ),
-  info: (message: string) =>
+  info: (...args: any[]) =>
     console.info(
       chalk.dim(format(new Date(), "yyyy-MM-dd HH:mm:ss")) +
-      chalk.cyan(" [INFO] ") +
-      message,
+        chalk.cyan(" [INFO] ") +
+        args.map((el) => JSON.stringify(el)).join(" "),
     ),
 };
