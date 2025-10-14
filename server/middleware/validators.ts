@@ -1,6 +1,6 @@
 import { body } from "express-validator";
 
-const MIN_PWD_LEN = Number(process.env.MIN_PWD_LEN) || 6;
+const MIN_PWD_LEN = Number(process.env.MIN_PWD_LEN) || 8;
 
 export const authValidator = [
   body("email").isEmail().withMessage("Email must be valid"),

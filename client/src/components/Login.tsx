@@ -5,27 +5,31 @@ import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import { useState } from "react";
-import { login } from "../actions/auth";
+import { IAuthAction, login } from "../actions/auth";
 import { useAlert } from "../hooks";
 import { RegisterProvider } from "../contexts/RegisterContext";
+import { useMutation } from "@tanstack/react-query";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const [isRegisterModalVisible, setIsRegisterModalVisible] = useState(false);
   const { alert } = useAlert("global");
 
+  const { mutateAsync, isPending } = useMutation({
+    mutationKey: ["login"],
+    mutationFn: ({ email, password }: IAuthAction) =>
+      login({ email, password }),
+  });
+
   const handleLogin = async () => {
-    setLoading(true);
-    const res = await login({ email, password });
+    const res = await mutateAsync({ email, password });
     if (res.success !== true)
       alert({
         id: "login",
         message: res.message,
         severity: "error",
       });
-    setLoading(false);
   };
 
   return (
@@ -45,7 +49,8 @@ const Login = () => {
         </p>
       </div>
       <TextField
-        suppressHydrationWarning={true}
+        // suppressHydrationWarning={true}
+        disabled={isPending}
         label="Email"
         variant="outlined"
         className="w-[80%]"
@@ -65,6 +70,7 @@ const Login = () => {
       />
       <TextField
         label="Password"
+        disabled={isPending}
         type="password"
         variant="outlined"
         className="mb-2 w-[80%]"
@@ -84,7 +90,7 @@ const Login = () => {
       />
       <div className="grid grid-cols-2 gap-4 w-[80%]">
         <Button
-          loading={loading}
+          loading={isPending}
           icon={<VpnKeyIcon className="mr-2" />}
           action={handleLogin}
           variant="primary-solid"
@@ -92,6 +98,7 @@ const Login = () => {
           wide={true}
         />
         <Button
+          loading={isPending}
           icon={<RocketLaunchIcon className="mr-2" />}
           action={() => setIsRegisterModalVisible(true)}
           variant="secondary-outline"

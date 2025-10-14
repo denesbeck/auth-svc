@@ -1,7 +1,7 @@
 import { isAxiosError } from "axios";
 import mainService from "../services/mainService";
 
-interface IAuthAction {
+export interface IAuthAction {
   email: string;
   password: string;
 }
