@@ -1,10 +1,14 @@
+import { ThemeProvider } from "@emotion/react";
 import { Layout, Login } from "./components";
+import { defaultTheme } from "./utils/theme";
 
 function App() {
   return (
-    <Layout>
-      <Login />
-    </Layout>
+    <ThemeProvider theme={defaultTheme}>
+      <Layout>
+        <Login />
+      </Layout>
+    </ThemeProvider>
   );
 }
 
