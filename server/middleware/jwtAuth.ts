@@ -1,6 +1,8 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import redis from "../lib/redis";
+import logger from "../utils/logger";
+import chalk from "chalk";
 
 const redisClient = redis().getInstance();
 
@@ -12,6 +14,7 @@ export const jwtAuthMiddleware = async (
   const token = req.header("Authorization")?.replace("Bearer ", "");
 
   if (!token) {
+    logger.debug("Missing authorization token.");
     res.status(401).json({ message: "Access denied. No token provided." });
     return;
   }
@@ -21,13 +24,13 @@ export const jwtAuthMiddleware = async (
     const decoded = jwt.verify(token, process.env.JWT_SECRET || "jwt_secret");
     username = (decoded as JwtPayload)?.username;
   } catch (error) {
-    console.error("Invalid token.");
+    logger.error("Invalid token.");
     res.status(401).json({ message: "Access denied. Invalid token." });
     return;
   }
 
   if (!username) {
-    console.error("Username missing.");
+    logger.error("Username missing.");
     res.status(401).json({ message: "Access denied. Invalid token." });
     return;
   }
@@ -35,12 +38,12 @@ export const jwtAuthMiddleware = async (
   try {
     const redisToken = await redisClient.get(username);
     if (redisToken !== token) {
-      console.error("Token mismatch.");
+      logger.error(`Token mismatch for ${chalk.dim(username)}.`);
       res.status(401).json({ message: "Access denied. Invalid token." });
       return;
     }
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.status(503).json({ message: "Service unavailable." });
     return;
   }

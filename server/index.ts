@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import express, { Request, Response } from "express";
 import path from "path";
+import logger from "./utils/logger";
 
 dotenv.config();
 
@@ -55,5 +56,6 @@ if (process.env.NODE_ENV === "production") {
 }
 
 app.listen(port, () => {
-  console.log(`🚀 Server is running at http://localhost:${port}`);
+  logger.debug(`NODE_ENV=${process.env.NODE_ENV}`);
+  logger.info(`🚀 Server is running at http://localhost:${port}`);
 });

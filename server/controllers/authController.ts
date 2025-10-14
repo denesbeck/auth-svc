@@ -3,6 +3,8 @@ import jwt from "jsonwebtoken";
 import postgres from "../lib/postgres";
 import redis from "../lib/redis";
 import crypto from "crypto";
+import logger from "../utils/logger";
+import chalk from "chalk";
 
 const pgClient = postgres().getInstance();
 const redisClient = redis().getInstance();
@@ -17,13 +19,14 @@ export const login = async (req: Request, res: Response) => {
       [username],
     );
     if (rows.length === 0) {
+      logger.debug(`No records for ${chalk.dim(username)}.`);
       res.status(401).json({ message: "Invalid credentials." });
       return;
     }
     salt = rows[0].salt;
     password_hash = rows[0].password_hash;
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     res.status(503).json({ message: "Unable to login." });
     return;
   }
@@ -41,8 +44,10 @@ export const login = async (req: Request, res: Response) => {
     );
     await redisClient.set(username, token);
     await redisClient.expire(username, 60 * 60 * 4);
+    logger.debug(`Token created for ${chalk.dim(username)}.`);
     res.json({ token });
   } else {
+    logger.debug(`Password mismatch for ${chalk.dim(username)}`);
     res.status(401).json({ message: "Invalid credentials." });
   }
 };
@@ -63,11 +68,13 @@ export const register = async (req: Request, res: Response) => {
     );
   } catch (error) {
     if (error.code === "23505" && error.detail.includes("already exists")) {
-      res.status(409).json({ message: "Email already registered." });
+      logger.debug(`User ${chalk.dim(username)} already registered.`);
+      res.status(409).json({ message: "User already registered." });
       return;
     }
-    console.error(error);
+    logger.error(error);
     res.status(503).json({ message: "Unable to register." });
   }
+  logger.debug(`User ${chalk.dim(username)} registered.`);
   res.status(200).json({ message: "ok" });
 };
