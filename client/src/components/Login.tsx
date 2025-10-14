@@ -1,17 +1,34 @@
 import { InputAdornment, TextField } from "@mui/material";
-import { Button } from "@/components";
+import { AlertBox, Button } from "../components";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import { useState } from "react";
+import { login } from "../actions/auth";
+import { useAlert } from "../hooks";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { alert } = useAlert();
 
+  const handleLogin = async () => {
+    setLoading(true);
+    const res = await login({ email, password });
+    if (res !== true)
+      alert({
+        id: "login",
+        title: "Error",
+        message: res.message,
+        severity: "error",
+      });
+    setLoading(false);
+  };
   return (
     <div className="flex z-10 flex-col gap-8 justify-center items-center py-10 w-screen bg-white shadow-2xl min-h-[45vh] sm:rounded-4xl sm:min-w-[35rem] sm:max-w-[35vw] sm:w-[90vw]">
+      <AlertBox />
       <div className="flex flex-col gap-2 items-center">
         <h1 className="text-4xl font-semibold text-transparent bg-clip-text from-cyan-300 via-indigo-500 to-blue-400 bg-linear-to-tr">
           Welcome back!
@@ -61,8 +78,9 @@ const Login = () => {
       />
       <div className="grid grid-cols-2 gap-4 w-[80%]">
         <Button
+          loading={loading}
           icon={<VpnKeyIcon className="mr-2" />}
-          action={() => console.log("Login")}
+          action={handleLogin}
           variant="primary-solid"
           label="Login"
           wide={true}

@@ -1,4 +1,4 @@
-import { Layout, Login } from "@/components";
+import { Layout, Login } from "./components";
 
 function App() {
   return (
