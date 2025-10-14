@@ -9,7 +9,7 @@ interface HeaderProps {
 const Header = ({ title, icon, backgroundColor }: HeaderProps) => {
   const Icon = icon;
   return (
-    <div className="flex items-center mb-2 space-x-3">
+    <div className="flex items-center mb-4 space-x-3">
       <div className={`w-max p-3 ${backgroundColor} rounded-full`}>
         <Icon className="text-white min-h-8 min-w-8" />
       </div>

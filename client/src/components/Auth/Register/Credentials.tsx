@@ -1,30 +1,29 @@
-import { Button, InputAdornment, TextField } from "@mui/material";
+import { InputAdornment, TextField } from "@mui/material";
 import { Email, Key, CheckCircleOutline } from "@mui/icons-material";
-import { useRegisterContext } from "../../contexts/RegisterContext";
-import { useAlert, useRegisterFormValidation } from "../../hooks";
-import { register } from "../../actions/auth";
+import { useRegisterContext } from "../../../contexts/RegisterContext";
+import { useAlert, useRegisterFormValidation } from "../../../hooks";
+import { register } from "../../../actions/auth";
 import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import Button from "../../Button";
 
 export type IPassword = {
   password: string;
   confirmPassword: string;
 };
 
-interface ICredentials {
-  next: () => void;
-}
-
-const Credentials = ({ next }: ICredentials) => {
+const Credentials = () => {
   const { email, setEmail, password, setPassword } = useRegisterContext();
   const { formValidity, validateForm } = useRegisterFormValidation();
   const { alert } = useAlert("global");
+  const navigate = useNavigate();
 
   const { mutateAsync, isPending } = useMutation({
     mutationKey: ["register"],
     mutationFn: () => register({ email, password: password.password }),
   });
 
-  const handleNext = async () => {
+  const handleSubmit = async () => {
     const isFormValid = validateForm();
     if (!isFormValid) return;
 
@@ -35,19 +34,20 @@ const Credentials = ({ next }: ICredentials) => {
         message: res.message,
         severity: "error",
       });
-      return;
     } else {
       alert({
         id: "register-success",
         message: "User successfully registered.",
         severity: "success",
       });
+      navigate("/");
     }
   };
 
   return (
     <>
       <TextField
+        className="w-full"
         error={formValidity.email.invalid}
         helperText={formValidity.email.errorMessage}
         autoFocus
@@ -118,15 +118,17 @@ const Credentials = ({ next }: ICredentials) => {
           },
         }}
       />
-      <div className="flex gap-4 justify-end">
+      <div className="flex gap-4 justify-end mt-4">
         <Button
-          loading={isPending}
-          color="primary"
-          variant="contained"
-          onClick={handleNext}
-        >
-          Next
-        </Button>
+          variant="primary-outline"
+          label="Submit"
+          action={handleSubmit}
+        />
+        <Button
+          variant="secondary-outline"
+          label="Back"
+          action={() => navigate("/")}
+        />
       </div>
     </>
   );

@@ -126,7 +126,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       {/* Three.js Canvas */}
       <div
         ref={canvasRef}
-        className="absolute top-0 left-0 z-0 w-screen h-screen"
+        className="overflow-hidden absolute top-0 left-0 z-0 w-screen h-screen"
       />
 
       {/* Content Layout */}

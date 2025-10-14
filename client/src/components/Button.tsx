@@ -36,11 +36,13 @@ const Button = ({
   };
 
   return (
-    <div className="flex relative justify-center items-center">
+    <div
+      className={`flex relative justify-center items-center ${wide ? "" : "w-32"}`}
+    >
       <button
         disabled={loading || disabled}
         onClick={action}
-        className={`flex ${wide ? "w-full" : "w-max"} cursor-pointer items-center justify-center rounded-full disabled:brightness-50 disabled:grayscale ${VARIANTS[variant]} px-4 py-2 text-lg shadow-md transition-all duration-150 ease-in-out enabled:hover:brightness-110`}
+        className={`flex ${wide ? "w-full" : "w-max"} min-w-32 cursor-pointer items-center justify-center rounded-full disabled:brightness-50 disabled:grayscale ${VARIANTS[variant]} px-4 py-2 text-lg shadow-md transition-all duration-150 ease-in-out enabled:hover:brightness-110`}
       >
         {iconPosition === "left" && icon}
         <span>{label}</span>

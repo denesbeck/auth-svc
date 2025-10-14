@@ -1,9 +1,9 @@
 interface InfoProps {
-  text: string
+  text: string;
 }
 
 const Info = ({ text }: InfoProps) => {
-  return <p className="mt-2 mb-6 text-slate-400">{text}</p>
-}
+  return <p className="mb-8 text-slate-200">{text}</p>;
+};
 
-export default Info
+export default Info;
