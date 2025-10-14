@@ -8,7 +8,7 @@ interface IRegister {
 }
 
 const Register = ({ close }: IRegister) => {
-  const { step, next, back } = useStepper();
+  const { step, next } = useStepper();
 
   return (
     <Modal close={close}>

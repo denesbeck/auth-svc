@@ -1,4 +1,4 @@
-import { IAlertPayload } from "../components/AlertBox";
+import { IAlertPayload } from "../components/Alert/AlertBox";
 
 type AlertEventType = "alert-event" | "close-alert" | "purge-alerts";
 
