@@ -1,5 +1,5 @@
 import { InputAdornment, TextField } from "@mui/material";
-import { AlertBox, Button, Register } from "../components";
+import { Button, Register } from "../components";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
@@ -7,13 +7,14 @@ import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import { useState } from "react";
 import { login } from "../actions/auth";
 import { useAlert } from "../hooks";
+import { RegisterProvider } from "../contexts/RegisterContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [isRegisterModalVisible, setIsRegisterModalVisible] = useState(false);
-  const { alert } = useAlert();
+  const { alert } = useAlert("global");
 
   const handleLogin = async () => {
     setLoading(true);
@@ -29,9 +30,10 @@ const Login = () => {
 
   return (
     <div className="flex z-10 flex-col gap-8 justify-center items-center py-10 w-screen bg-white shadow-2xl min-h-[45vh] sm:rounded-4xl sm:min-w-[35rem] sm:max-w-[35vw] sm:w-[90vw]">
-      <AlertBox />
       {isRegisterModalVisible && (
-        <Register close={() => setIsRegisterModalVisible(false)} />
+        <RegisterProvider>
+          <Register close={() => setIsRegisterModalVisible(false)} />
+        </RegisterProvider>
       )}
       <div className="flex flex-col gap-2 items-center">
         <h1 className="text-4xl font-semibold text-transparent bg-clip-text from-cyan-300 via-indigo-500 to-blue-400 bg-linear-to-tr">
