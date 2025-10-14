@@ -13,7 +13,7 @@ const Header = ({ title, icon, backgroundColor }: HeaderProps) => {
       <div className={`w-max p-3 ${backgroundColor} rounded-full`}>
         <Icon className="text-white min-h-8 min-w-8" />
       </div>
-      <h1 className="text-2xl text-slate-100">{title}</h1>
+      <h1 className="text-2xl text-dark-200">{title}</h1>
     </div>
   );
 };

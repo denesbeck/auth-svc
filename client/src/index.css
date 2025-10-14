@@ -3,7 +3,6 @@
 @theme {
   --animate-slide-in-from-bottom: slideInFromBottom 0.2s ease-out;
   --animate-text-focus: textFocus 0.3s ease-in;
-  --animate-blink: blink 1s step-end infinite;
 
   @keyframes slideInFromBottom {
     0% {
@@ -29,21 +28,19 @@
     }
   }
 
-  @keyframes blink {
-
-    0%,
-    100% {
-      opacity: 1;
-    }
-
-    50% {
-      opacity: 0;
-    }
-  }
+  --color-dark-50: #f8f8fc;
+  --color-dark-100: #e0e0f0;
+  --color-dark-200: #b8b8d0;
+  --color-dark-300: #8a8aa8;
+  --color-dark-400: #5a5a7a;
+  --color-dark-500: #3a3a4a;
+  --color-dark-600: #2e2e3c;
+  --color-dark-700: #22222e;
+  --color-dark-800: #20202c;
+  --color-dark-900: #1a1a24;
 }
 
 @layer base {
-
   *,
   ::after,
   ::before,
@@ -56,8 +53,4 @@
 @font-face {
   font-family: "DepartureMono";
   src: url("./assets/fonts/DepartureMono-Regular.woff2") format("woff2");
-}
-
-body {
-  background-color: #1a202c;
 }

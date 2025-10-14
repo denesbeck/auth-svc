@@ -4,7 +4,7 @@ import Credentials from "./Credentials";
 
 const Register = () => {
   return (
-    <div className="flex flex-col justify-center py-10 px-10 w-screen shadow-2xl bg-black/60 backdrop-blur-xs min-h-[45vh] sm:rounded-4xl sm:min-w-[35rem] sm:max-w-[35vw] sm:w-[90vw]">
+    <div className="flex flex-col justify-center py-10 px-10 w-screen border shadow-2xl animate-slide-in-from-bottom bg-dark-800 border-dark-500 min-h-[45vh] sm:rounded-4xl sm:min-w-[35rem] sm:max-w-[35vw] sm:w-[90vw]">
       <Header
         title="Register"
         icon={RocketLaunch}

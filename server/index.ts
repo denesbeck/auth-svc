@@ -3,6 +3,7 @@ import express, { Request, Response } from "express";
 import path from "path";
 import logger from "./utils/logger";
 import helmet from "helmet";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -19,12 +20,11 @@ import auth from "./routes/authRoutes";
 const app = express();
 const port = process.env.PORT || 4001;
 
-// Apply CORS middleware only for API routes
-app.use("/api", corsMiddleware);
-
+app.use("/api", corsMiddleware); // Enable cors middleware (/api routes only)
 app.use(headersMiddleware); // Enable headers middleware
 app.use(loggerMiddleware); // Enable logging middleware
 app.use(helmet()); // Setting secure HTTP response headers
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -42,11 +42,12 @@ app.use("/api/v1/auth", authLimiter, auth);
 
 // Example protected route
 app.get(
-  "/api/v1/protected",
+  "/api/v1/check-auth",
   jwtAuthMiddleware,
   (_req: Request, res: Response) => {
-    res.json({
-      message: "This is a protected route.",
+    res.status(200).json({
+      message: "Authenticated",
+      redirectUrl: process.env.REDIRECT_URL || "http://localhost:3000",
     });
   },
 );

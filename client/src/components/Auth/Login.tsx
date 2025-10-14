@@ -29,20 +29,20 @@ const Login = () => {
     } else {
       alert({
         id: "login",
-        message: res.message,
+        message: res.message as string,
         severity: "error",
       });
     }
   };
 
   return (
-    <div className="flex flex-col gap-8 justify-center items-center py-10 w-screen shadow-2xl bg-black/60 backdrop-blur-xs min-h-[45vh] sm:rounded-4xl sm:min-w-[35rem] sm:max-w-[35vw] sm:w-[90vw]">
+    <div className="flex flex-col gap-8 justify-center items-center py-10 w-screen shadow-2xl animate-slide-in-from-bottom bg-dark-800 min-h-[45vh] sm:rounded-4xl sm:min-w-[35rem] sm:max-w-[35vw] sm:w-[90vw]">
       <div className="flex flex-col gap-2 items-center">
-        <h1 className="text-4xl font-semibold text-transparent bg-clip-text from-cyan-300 via-indigo-500 to-blue-400 bg-linear-to-tr">
+        <h1 className="text-4xl font-semibold text-transparent bg-clip-text from-indigo-500 via-blue-300 to-indigo-400 bg-linear-to-tr">
           Welcome back!
         </h1>
 
-        <p className="text-lg text-center sm:whitespace-nowrap text-slate-100">
+        <p className="text-lg text-center sm:whitespace-nowrap text-dark-100">
           Please login to your account to continue.
         </p>
       </div>

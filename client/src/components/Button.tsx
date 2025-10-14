@@ -27,12 +27,12 @@ const Button = ({
   disabled = false,
 }: ButtonProps) => {
   const VARIANTS = {
-    "primary-solid": "bg-cyan-500 text-white",
+    "primary-solid": "bg-blue-400 text-white",
     "primary-outline":
-      "text-cyan-400 border hover:bg-cyan-500/30 hover:text-cyan-300 hover:border-cyan-300  border-cyan-400",
-    "secondary-solid": "bg-slate-400 text-white",
+      "text-blue-300 border hover:bg-blue-300/30 hover:text-blue-200 hover:border-blue-200  border-blue-300",
+    "secondary-solid": "bg-dark-400 text-white",
     "secondary-outline":
-      "text-slate-300 border hover:bg-slate-300/30 hover:text-slate-100 hover:border-slate-100 border-slate-300",
+      "text-dark-200 border hover:bg-dark-200/30 hover:text-dark-50 hover:border-dark-50 border-dark-200",
   };
 
   return (

@@ -31,7 +31,7 @@ const Credentials = () => {
     if (res.success !== true) {
       alert({
         id: "register-error",
-        message: res.message,
+        message: res.message as string,
         severity: "error",
       });
     } else {
