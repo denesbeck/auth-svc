@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Alert } from ".";
 import { ThemeProvider } from "@mui/material/styles";
-import { alertTheme } from "../utils/theme";
+import { alertTheme } from "../../utils/theme";
 
 export type Severity = "error" | "warning" | "info" | "success";
 
@@ -73,7 +73,7 @@ const AlertBox = ({ maxAlert = 5, context = "" }: IAlertBox) => {
 
   return (
     <ThemeProvider theme={alertTheme}>
-      <div className="flex fixed top-2 right-2 z-10 flex-col items-end space-y-2 w-max">
+      <div className="flex fixed top-2 right-2 z-20 flex-col items-end space-y-2 w-max">
         {alerts.map((el) => {
           return (
             <Alert

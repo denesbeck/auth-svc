@@ -1,5 +1,4 @@
-import Alert from "./Alert";
-import AlertBox from "./AlertBox";
+import { Alert, AlertBox } from "./Alert";
 import Backdrop from "./Backdrop";
 import Button from "./Button";
 import Header from "./Header";
