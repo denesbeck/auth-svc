@@ -7,7 +7,7 @@ export interface IAuthAction {
 }
 
 type AuthResponse =
-  | { success: true; data?: { url: string } }
+  | { success: true; data?: { mfaUrl?: string; redirectUrl?: string } }
   | { success: false; message: string };
 
 export const login = async ({
@@ -15,11 +15,11 @@ export const login = async ({
   password,
 }: IAuthAction): Promise<AuthResponse> => {
   try {
-    await mainService.post("/v1/auth/login", {
+    const { data } = await mainService.post("/v1/auth/login", {
       email,
       password,
     });
-    return { success: true };
+    return { success: true, data };
   } catch (e: unknown) {
     let message = "An unknown error occurred";
     if (isAxiosError(e)) {

@@ -1,5 +1,5 @@
 {
-  "name": "csync-auth",
+  "name": "auth-svc",
   "version": "1.0.0",
   "scripts": {
     "server:dev": "npm run dev --workspace server",

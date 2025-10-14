@@ -16,7 +16,7 @@ const Modal = ({ children, close, keepOpen = true }: IModal) => {
     <Backdrop>
       <div
         ref={keepOpen ? undefined : ref}
-        className="flex relative flex-col p-8 bg-white rounded-2xl w-[30rem] max-w-[90vw] animate-slide-in-from-bottom text-neutral-600"
+        className="flex relative flex-col p-8 rounded-2xl bg-black/10 backdrop-blur-xs w-[30rem] max-w-[90vw] animate-slide-in-from-bottom text-neutral-600"
       >
         {close && (
           <div className="absolute top-0 right-0 p-2">

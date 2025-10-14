@@ -1,12 +1,12 @@
 {
-  "name": "csync-server",
+  "name": "auth-svc-server",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
     "start": "tsc && NODE_ENV=production PORT=3000 node ./dist/server/index.js",
     "compile": "tsc",
     "db:up": "docker-compose up -d",
-    "dev": "docker-compose up -d && NODE_ENV=development PORT=4000 nodemon index.ts"
+    "dev": "docker-compose up -d && NODE_ENV=development PORT=4001 nodemon index.ts"
   },
   "author": "",
   "license": "ISC",

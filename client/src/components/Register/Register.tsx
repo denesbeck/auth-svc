@@ -11,7 +11,7 @@ const Register = ({ close }: IRegister) => {
   const { step, next } = useStepper();
 
   return (
-    <Modal close={close}>
+    <div className="flex z-10 flex-col gap-8 justify-center items-center py-10 w-screen shadow-2xl bg-black/60 backdrop-blur-xs min-h-[45vh] sm:rounded-4xl sm:min-w-[35rem] sm:max-w-[35vw] sm:w-[90vw]">
       <Header
         title="Register"
         icon={RocketLaunch}
@@ -21,7 +21,7 @@ const Register = ({ close }: IRegister) => {
       <div className="flex flex-col gap-4 animate-textFocus">
         {step === 1 && <Credentials next={next} />}
       </div>
-    </Modal>
+    </div>
   );
 };
 

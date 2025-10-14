@@ -24,89 +24,98 @@ const Login = () => {
 
   const handleLogin = async () => {
     const res = await mutateAsync({ email, password });
-    if (res.success !== true)
+    if (res.success === true) {
+      // Redirect to the provided URL after successful login
+      console.log(res);
+      window.location.href = res.data?.redirectUrl;
+    } else {
       alert({
         id: "login",
         message: res.message,
         severity: "error",
       });
+    }
   };
 
   return (
-    <div className="flex z-10 flex-col gap-8 justify-center items-center py-10 w-screen bg-white shadow-2xl min-h-[45vh] sm:rounded-4xl sm:min-w-[35rem] sm:max-w-[35vw] sm:w-[90vw]">
-      {isRegisterModalVisible && (
+    <>
+      {isRegisterModalVisible ? (
         <RegisterProvider>
           <Register close={() => setIsRegisterModalVisible(false)} />
         </RegisterProvider>
-      )}
-      <div className="flex flex-col gap-2 items-center">
-        <h1 className="text-4xl font-semibold text-transparent bg-clip-text from-cyan-300 via-indigo-500 to-blue-400 bg-linear-to-tr">
-          Welcome back!
-        </h1>
+      ) : (
+        <div className="flex z-10 flex-col gap-8 justify-center items-center py-10 w-screen shadow-2xl bg-black/60 backdrop-blur-xs min-h-[45vh] sm:rounded-4xl sm:min-w-[35rem] sm:max-w-[35vw] sm:w-[90vw]">
+          <div className="flex flex-col gap-2 items-center">
+            <h1 className="text-4xl font-semibold text-transparent bg-clip-text from-cyan-300 via-indigo-500 to-blue-400 bg-linear-to-tr">
+              Welcome back!
+            </h1>
 
-        <p className="text-lg text-center sm:whitespace-nowrap text-slate-400">
-          Please login to your account to continue.
-        </p>
-      </div>
-      <TextField
-        // suppressHydrationWarning={true}
-        disabled={isPending}
-        label="Email"
-        variant="outlined"
-        className="w-[80%]"
-        value={email}
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-          setEmail(event.target.value)
-        }
-        slotProps={{
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <EmailIcon />
-              </InputAdornment>
-            ),
-          },
-        }}
-      />
-      <TextField
-        label="Password"
-        disabled={isPending}
-        type="password"
-        variant="outlined"
-        className="mb-2 w-[80%]"
-        value={password}
-        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-          setPassword(() => event.target.value)
-        }
-        slotProps={{
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <LockIcon />
-              </InputAdornment>
-            ),
-          },
-        }}
-      />
-      <div className="grid grid-cols-2 gap-4 w-[80%]">
-        <Button
-          loading={isPending}
-          icon={<VpnKeyIcon className="mr-2" />}
-          action={handleLogin}
-          variant="primary-solid"
-          label="Login"
-          wide={true}
-        />
-        <Button
-          loading={isPending}
-          icon={<RocketLaunchIcon className="mr-2" />}
-          action={() => setIsRegisterModalVisible(true)}
-          variant="secondary-outline"
-          label="Register"
-          wide={true}
-        />
-      </div>
-    </div>
+            <p className="text-lg text-center sm:whitespace-nowrap text-slate-100">
+              Please login to your account to continue.
+            </p>
+          </div>
+          <TextField
+            // suppressHydrationWarning={true}
+            disabled={isPending}
+            label="Email"
+            variant="outlined"
+            className="w-[80%]"
+            value={email}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+              setEmail(event.target.value)
+            }
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <EmailIcon />
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+          <TextField
+            label="Password"
+            disabled={isPending}
+            type="password"
+            variant="outlined"
+            className="mb-2 w-[80%]"
+            value={password}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+              setPassword(() => event.target.value)
+            }
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockIcon />
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+          <div className="grid grid-cols-2 gap-4 w-[80%]">
+            <Button
+              loading={isPending}
+              disabled={isPending}
+              icon={<VpnKeyIcon className="mr-2" />}
+              action={handleLogin}
+              variant="primary-outline"
+              label="Login"
+              wide={true}
+            />
+            <Button
+              disabled={isPending}
+              icon={<RocketLaunchIcon className="mr-2" />}
+              action={() => setIsRegisterModalVisible(true)}
+              variant="secondary-outline"
+              label="Register"
+              wide={true}
+            />
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

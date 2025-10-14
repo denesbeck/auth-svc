@@ -28,9 +28,11 @@ const Button = ({
 }: ButtonProps) => {
   const VARIANTS = {
     "primary-solid": "bg-cyan-500 text-white",
-    "primary-outline": "text-cyan-500 border border-cyan-500",
+    "primary-outline":
+      "text-cyan-400 border hover:bg-cyan-500/30 hover:text-cyan-300 hover:border-cyan-300  border-cyan-400",
     "secondary-solid": "bg-slate-400 text-white",
-    "secondary-outline": "text-slate-400 border border-slate-400",
+    "secondary-outline":
+      "text-slate-300 border hover:bg-slate-300/30 hover:text-slate-100 hover:border-slate-100 border-slate-300",
   };
 
   return (

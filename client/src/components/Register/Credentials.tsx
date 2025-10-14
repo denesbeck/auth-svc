@@ -21,9 +21,7 @@ const Credentials = ({ next }: ICredentials) => {
 
   const { mutateAsync, isPending } = useMutation({
     mutationKey: ["register"],
-    mutationFn: () => {
-      return register({ email, password: password.password });
-    },
+    mutationFn: () => register({ email, password: password.password }),
   });
 
   const handleNext = async () => {
@@ -45,7 +43,6 @@ const Credentials = ({ next }: ICredentials) => {
         severity: "success",
       });
     }
-    next();
   };
 
   return (

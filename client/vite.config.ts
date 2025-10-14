@@ -15,10 +15,10 @@ export default defineConfig({
     sourcemap: false,
   },
   server: {
-    port: 3000,
+    port: 3001,
     proxy: {
       "/api": {
-        target: "http://localhost:4000",
+        target: "http://localhost:4001",
       },
     },
   },

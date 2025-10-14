@@ -48,16 +48,29 @@ export const login = async (req: Request, res: Response) => {
 
   if (password_hash === hashedPassword) {
     logger.debug(`Password match for \`${email}\`.`);
+
+    const token = jwt.sign({ email }, process.env.JWT_SECRET || "jwt_secret", {
+      expiresIn: "4h",
+    });
+
     try {
-      await redisClient.set(email, "pending_mfa_confirm");
-      await redisClient.expire(email, 60 * 5);
-      logger.debug(`Pending MFA confirm status set in Redis for \`${email}\``);
+      res.cookie("auth_token", token, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 4 * 60 * 60 * 1000,
+      });
+
+      logger.debug(`Token stored in cookie for \`${email}\`.`);
+      res.status(200).json({
+        success: true,
+        redirectUrl: process.env.REDIRECT_URL || "http://localhost:3000",
+      });
     } catch (error) {
       logger.error(error);
-      res.status(503).json({ message: "Unable to login." });
+      res.status(503).json({ message: "Unable to set cookie." });
       return;
     }
-    res.status(200).json({ message: "Pending MFA confirm." });
   } else {
     logger.debug(`Password mismatch for \`${email}\``);
     res.status(401).json({ message: "Invalid credentials." });
@@ -184,5 +197,5 @@ export const register = async (req: Request, res: Response) => {
     return;
   }
   logger.debug(`User \`${email}\` registered.`);
-  res.status(200).json({ message: "ok", url });
+  res.status(200).json({ message: "ok", mfaUrl: url });
 };

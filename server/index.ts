@@ -17,9 +17,11 @@ import { authLimiter, healthLimiter } from "./middleware/rateLimiters";
 import auth from "./routes/authRoutes";
 
 const app = express();
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 4001;
 
-app.use(corsMiddleware); // Enable CORS middleware
+// Apply CORS middleware only for API routes
+app.use("/api", corsMiddleware);
+
 app.use(headersMiddleware); // Enable headers middleware
 app.use(loggerMiddleware); // Enable logging middleware
 app.use(helmet()); // Setting secure HTTP response headers
