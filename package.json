@@ -1,19 +1,18 @@
 {
   "name": "auth-svc",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "scripts": {
-    "server:dev": "npm run dev --workspace server",
-    "server:start": "npm start --workspace server",
-    "client:dev": "npm run dev --workspace client",
-    "client:build": "npm run build --workspace client",
-    "start": "npm run build --workspace client && npm start --workspace server",
-    "update:client": "npx npm-check-updates -u --workspace client && npm install --workspace client",
-    "update:server": "npx npm-check-updates -u --workspace server && npm install --workspace server",
-    "update:all": "npm run update:server && npm run update:client"
+    "dev": "npm run dev --workspace server",
+    "start": "npm start --workspace server",
+    "test": "npm test --workspace server",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write ."
   },
   "private": true,
   "workspaces": [
-    "client",
     "server"
-  ]
+  ],
+  "devDependencies": {
+    "@biomejs/biome": "2.4.7"
+  }
 }
