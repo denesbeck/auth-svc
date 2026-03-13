@@ -2,7 +2,7 @@
 set -euo pipefail
 
 BASE_URL="${ISSUER_URL:-http://localhost:4001}"
-REDIRECT_URI="http://localhost:3000/oauth/callback"
+REDIRECT_URI="http://localhost:3000"
 
 # 1. Register a client
 echo "Registering client..."

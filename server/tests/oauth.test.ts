@@ -9,12 +9,12 @@ import { beforeAll, describe, expect, it } from "vitest";
  *   - Postgres + Redis running
  *   - A test user exists: admin@admin.io / SuperSecret
  *
- * Run with: npm test
+ * Run with: bun test
  */
 
 const BASE_URL = process.env.TEST_BASE_URL || "http://localhost:4001";
 const TEST_USER = { email: "admin@admin.io", password: "SuperSecret" };
-const REDIRECT_URI = "http://localhost:3000/oauth/callback";
+const REDIRECT_URI = "http://localhost:3000";
 
 // ── PKCE helpers ──────────────────────────────────────────────────────────────
 
@@ -327,7 +327,7 @@ describe("Authorization Flow", () => {
 
     expect(res.status).toBe(302);
     const location = new URL(res.headers.get("location")!);
-    expect(location.origin + location.pathname).toBe(REDIRECT_URI);
+    expect(location.origin).toBe(REDIRECT_URI);
     expect(location.searchParams.get("error")).toBe("access_denied");
     expect(location.searchParams.get("state")).toBe("deny-state");
   });
@@ -345,7 +345,7 @@ describe("Authorization Flow", () => {
 
     expect(res.status).toBe(302);
     const location = new URL(res.headers.get("location")!);
-    expect(location.origin + location.pathname).toBe(REDIRECT_URI);
+    expect(location.origin).toBe(REDIRECT_URI);
 
     authorizationCode = location.searchParams.get("code")!;
     expect(authorizationCode).toBeDefined();

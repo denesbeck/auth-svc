@@ -96,7 +96,7 @@ curl http://localhost:4001/.well-known/oauth-authorization-server
 curl -X POST http://localhost:4001/register \
   -H "Content-Type: application/json" \
   -d '{
-    "redirect_uris": ["http://localhost:3000/oauth/callback"],
+    "redirect_uris": ["http://localhost:3000"],
     "client_name": "My MCP Client",
     "grant_types": ["authorization_code", "refresh_token"],
     "scope": "mcp:tools mcp:resources"
@@ -113,7 +113,7 @@ The client opens this URL in the user's browser:
 http://localhost:4001/authorize?
   response_type=code&
   client_id=CLIENT_ID&
-  redirect_uri=http://localhost:3000/oauth/callback&
+  redirect_uri=http://localhost:3000&
   scope=mcp:tools&
   state=RANDOM_STATE&
   code_challenge=CODE_CHALLENGE&
@@ -123,7 +123,7 @@ http://localhost:4001/authorize?
 The user logs in and approves. The browser redirects to the callback URL with an authorization code:
 
 ```
-http://localhost:3000/oauth/callback?code=AUTH_CODE&state=RANDOM_STATE&iss=http://localhost:4001
+http://localhost:3000?code=AUTH_CODE&state=RANDOM_STATE&iss=http://localhost:4001
 ```
 
 ### 4. Token Exchange

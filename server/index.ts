@@ -25,6 +25,10 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        // Allow forms to redirect anywhere — the OAuth consent form POSTs to
+        // /authorize/consent which 302-redirects to the client's redirect_uri
+        // (a different origin). The default 'self' would block this redirect.
+        "form-action": null,
         // Disable upgrade-insecure-requests in development —
         // it causes browsers to rewrite http:// form actions to https://,
         // breaking the OAuth consent flow on localhost.
