@@ -1,4 +1,4 @@
-# auth-svc
+# 🫆 auth-svc
 
 OAuth 2.1 Authorization Server for MCP (Model Context Protocol) servers.
 
@@ -45,8 +45,8 @@ cp .env.example .env
 # 3. Start PostgreSQL + Redis
 bun run db:up
 
-# 4. Create a user
-bun run create-user user@example.com yourpassword
+# 4. Create a user (password: min 8 chars, upper + lower + digit)
+bun run create-user user@example.com YourPassword1
 
 # 5. Start the dev server
 bun run dev
@@ -64,6 +64,7 @@ The server starts at `http://localhost:4001`.
 | `POST` | `/authorize/login` | Handles login form submission |
 | `POST` | `/authorize/consent` | Handles consent approval/denial |
 | `POST` | `/token` | Token endpoint — code exchange and refresh |
+| `POST` | `/revoke` | Token revocation (RFC 7009) |
 | `GET` | `/health` | Health check |
 
 ## OAuth 2.1 Flow
@@ -82,10 +83,12 @@ curl http://localhost:4001/.well-known/oauth-authorization-server
   "authorization_endpoint": "http://localhost:4001/authorize",
   "token_endpoint": "http://localhost:4001/token",
   "registration_endpoint": "http://localhost:4001/register",
+  "revocation_endpoint": "http://localhost:4001/revoke",
   "scopes_supported": ["mcp:tools", "mcp:resources", "mcp:prompts"],
   "response_types_supported": ["code"],
   "grant_types_supported": ["authorization_code", "refresh_token"],
   "token_endpoint_auth_methods_supported": ["none", "client_secret_post"],
+  "revocation_endpoint_auth_methods_supported": ["none", "client_secret_post"],
   "code_challenge_methods_supported": ["S256"]
 }
 ```
@@ -163,6 +166,16 @@ curl -X POST http://localhost:4001/token \
 
 Returns a new access token and a new refresh token (rotation). The old refresh token is revoked.
 
+### 7. Token Revocation
+
+```bash
+curl -X POST http://localhost:4001/revoke \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "token=REFRESH_TOKEN&client_id=CLIENT_ID"
+```
+
+For confidential clients, include `client_secret`. The server responds with `200 OK` regardless of whether the token was found (per RFC 7009, to prevent token scanning).
+
 ## PKCE
 
 PKCE (Proof Key for Code Exchange) with S256 is **required** on all authorization requests. This is mandated by both OAuth 2.1 and the MCP specification.
@@ -232,18 +245,26 @@ See [`config/db/init.sql`](server/config/db/init.sql) for the full schema.
 
 ## Security
 
-- **Passwords** hashed with bcrypt (12 rounds)
-- **PKCE S256** required on all authorization requests
-- **JWT_SECRET** required from environment (no hardcoded fallback)
+- **Passwords** hashed with bcrypt (12 rounds) with policy enforcement (min 8 chars, upper + lower + digit)
+- **Client secrets** hashed with bcrypt before storage; plaintext returned only once at registration
+- **Client authentication** enforced at token and revocation endpoints for confidential clients
+- **PKCE S256** required on all authorization requests; `plain` method explicitly rejected
+- **JWT_SECRET** validated at startup: rejects placeholders, enforces 32-char minimum
 - **Authorization codes** are single-use; reuse triggers revocation of all associated tokens
 - **Refresh token rotation** with revoked-token-reuse detection (revokes all tokens on suspected theft)
+- **Token revocation** endpoint per RFC 7009
+- **Scope validation** against server's supported scopes on authorization requests
 - **Redirect URIs** must be localhost or HTTPS
-- **Rate limiting** on login and token endpoints (20 req/min), general limit on all routes (60 req/min)
+- **Rate limiting** — login (10 req/min), token (30 req/min), registration (5 req/min), general (60 req/min)
+- **Account lockout** — per-account lockout after 5 failed login attempts with progressive backoff (via Redis)
+- **CORS** — production requires explicit `CORS_ORIGIN`; development allows localhost only; no open CORS
+- **Startup validation** — production requires `DATABASE_URL`, `REDIS_URL`, `CORS_ORIGIN`, HTTPS `ISSUER_URL`
 - **Helmet** for secure HTTP headers
 - **`Cache-Control: no-store`** and **`Pragma: no-cache`** on all token responses
 - **`WWW-Authenticate`** headers on all 401/403 responses per RFC 6750
 - **JWT audience validation** on token verification
 - **XSS protection** via HTML escaping on all server-rendered pages
+- **Error logging** sanitized — no connection strings, query params, or full stack traces in production
 
 ## Scripts
 
@@ -299,15 +320,15 @@ Tests cover: metadata shape, client registration validation, login/consent flow,
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `JWT_SECRET` | Yes | — | Signing key for access tokens. Use a random string (32+ bytes). |
+| `JWT_SECRET` | **Yes** | — | Signing key for access tokens. Generate with `openssl rand -base64 48`. Must be 32+ chars, no placeholders. |
 | `PORT` | No | `4001` | Server port |
 | `NODE_ENV` | No | `development` | `development` or `production` |
-| `DEBUG` | No | `false` | Enable debug logging |
-| `ISSUER_URL` | No | `http://localhost:PORT` | OAuth issuer identifier. Set to your public URL in production. |
-| `DATABASE_URL` | No | `postgres://postgres:postgres@localhost:5432/csync_auth_dev` | PostgreSQL connection string |
+| `DEBUG` | No | `false` | Enable debug logging (`true` or `false`) |
+| `ISSUER_URL` | **Prod: Yes** | `http://localhost:PORT` | OAuth issuer identifier. Must be HTTPS in production. |
+| `DATABASE_URL` | **Prod: Yes** | `postgres://...localhost:5432/auth_dev` | PostgreSQL connection string. Required in production. |
 | `DATABASE_SSL` | No | `false` | Enable SSL for PostgreSQL |
-| `REDIS_URL` | No | `redis://localhost:6379` | Redis connection string |
-| `CORS_ORIGIN` | No | `*` (all origins) | Allowed CORS origin(s) |
+| `REDIS_URL` | **Prod: Yes** | `redis://localhost:6379` | Redis connection string. Required in production. |
+| `CORS_ORIGIN` | **Prod: Yes** | Localhost only (dev) | Allowed CORS origin(s), comma-separated. Required in production. |
 
 ## Docker Services
 
@@ -322,32 +343,35 @@ Tests cover: metadata shape, client registration validation, login/consent flow,
 
 ```
 server/
-  index.ts                          Entry point
-  config/db/init.sql                Database schema
+  index.ts                          Entry point (with startup validation)
+  config/db/init.sql                Database schema (with indexes)
   controllers/
     metadataController.ts           GET /.well-known/oauth-authorization-server
-    registrationController.ts       POST /register
+    registrationController.ts       POST /register (bcrypt-hashed client secrets)
     authorizeController.ts          GET /authorize, POST /authorize/login, POST /authorize/consent
-    tokenController.ts              POST /token
+    tokenController.ts              POST /token (with client authentication)
+    revocationController.ts         POST /revoke (RFC 7009)
   lib/
     postgres.ts                     PostgreSQL connection pool
     redis.ts                        Redis client
   middleware/
     bearerAuth.ts                   Bearer token validation (for MCP servers)
-    cors.ts                         CORS configuration
+    cors.ts                         CORS configuration (env-aware)
     headers.ts                      Security headers
     logger.ts                       Request logging
-    rateLimiters.ts                 Rate limiting
+    rateLimiters.ts                 Rate limiting (per-endpoint)
   routes/
     oauthRoutes.ts                  Route wiring
   utils/
+    accountLockout.ts               Per-account lockout with progressive backoff (Redis)
     jwt.ts                          JWT signing and verification
-    logger.ts                       Console logger
-    pkce.ts                         PKCE utilities
+    logger.ts                       Console logger (sanitized)
+    pkce.ts                         PKCE utilities (S256 only)
+    startup.ts                      Environment validation at startup
   views/
     consent.ts                      Server-rendered login/consent HTML pages
   scripts/
-    create-user.ts                  CLI to create users
+    create-user.ts                  CLI to create users (with password policy)
     open-login.sh                   Opens the OAuth login page in your browser
   tests/
     oauth.test.ts                   Integration test suite (27 tests)
@@ -358,6 +382,7 @@ server/
 - [OAuth 2.1](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-12) — Authorization code grant with PKCE, no implicit grant
 - [RFC 8414](https://datatracker.ietf.org/doc/html/rfc8414) — Authorization Server Metadata
 - [RFC 7591](https://datatracker.ietf.org/doc/html/rfc7591) — Dynamic Client Registration
+- [RFC 7009](https://datatracker.ietf.org/doc/html/rfc7009) — Token Revocation
 - [RFC 7636](https://datatracker.ietf.org/doc/html/rfc7636) — PKCE (S256)
 - [RFC 6750](https://datatracker.ietf.org/doc/html/rfc6750) — Bearer Token Usage
 - [MCP Authorization Spec](https://modelcontextprotocol.io/specification/2025-03-26/basic/authorization) — MCP-specific requirements
