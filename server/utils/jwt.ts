@@ -9,6 +9,9 @@ import jwt from "jsonwebtoken";
  * The JWKS endpoint will need updating when switching to RS256.
  */
 
+/** Known placeholder values that must not be used in production. */
+const PLACEHOLDER_PATTERNS = ["change-me", "changeme", "your-secret", "replace-me", "example"];
+
 function getJwtSecret(): string {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
@@ -16,6 +19,23 @@ function getJwtSecret(): string {
       "JWT_SECRET environment variable is required. Set it to a cryptographically random string (min 32 bytes).",
     );
   }
+
+  if (secret.length < 32) {
+    throw new Error(
+      "JWT_SECRET must be at least 32 characters. Use a cryptographically random string.",
+    );
+  }
+
+  // Reject known placeholder/default values
+  const lowerSecret = secret.toLowerCase();
+  for (const pattern of PLACEHOLDER_PATTERNS) {
+    if (lowerSecret.includes(pattern)) {
+      throw new Error(
+        `JWT_SECRET contains a placeholder value ('${pattern}'). Generate a real secret: openssl rand -base64 48`,
+      );
+    }
+  }
+
   return secret;
 }
 

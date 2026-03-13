@@ -4,21 +4,20 @@ import crypto from "node:crypto";
  * Validates a code_verifier against a stored code_challenge using S256.
  *
  * S256: BASE64URL(SHA256(ASCII(code_verifier))) === code_challenge
+ *
+ * Only S256 is supported. The "plain" method is explicitly forbidden
+ * per OAuth 2.1 (draft-ietf-oauth-v2-1) as it provides no security.
  */
 export function verifyCodeChallenge(
   codeVerifier: string,
   codeChallenge: string,
   method: string = "S256",
 ): boolean {
-  if (method === "S256") {
-    const computed = crypto.createHash("sha256").update(codeVerifier, "ascii").digest("base64url");
-    return computed === codeChallenge;
+  if (method !== "S256") {
+    return false;
   }
-  // plain method (only for clients that truly cannot do S256)
-  if (method === "plain") {
-    return codeVerifier === codeChallenge;
-  }
-  return false;
+  const computed = crypto.createHash("sha256").update(codeVerifier, "ascii").digest("base64url");
+  return computed === codeChallenge;
 }
 
 /**
