@@ -56,3 +56,17 @@ CREATE TABLE IF NOT EXISTS public.refresh_tokens
     created_at timestamp with time zone NOT NULL DEFAULT now(),
     CONSTRAINT refresh_tokens_pkey PRIMARY KEY (token)
 );
+
+-- Index for bulk token revocation queries (used in reuse detection)
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_client_user
+    ON public.refresh_tokens (client_id, user_id);
+
+-- Index for expired token cleanup
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_expires_at
+    ON public.refresh_tokens (expires_at)
+    WHERE revoked = false;
+
+-- Index for expired authorization code cleanup
+CREATE INDEX IF NOT EXISTS idx_authorization_codes_expires_at
+    ON public.authorization_codes (expires_at)
+    WHERE used = false;

@@ -2,8 +2,12 @@ import dotenv from "dotenv";
 import express, { type Request, type Response } from "express";
 import helmet from "helmet";
 import logger from "./utils/logger";
+import { validateEnvironment } from "./utils/startup";
 
 dotenv.config();
+
+// Validate environment configuration early — fails fast on misconfiguration
+validateEnvironment();
 
 // Import middlewares
 import { corsMiddleware } from "./middleware/cors";
@@ -43,13 +47,9 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health check
+// Health check — minimal response, no server metadata exposed
 app.get("/health", healthLimiter, (_req: Request, res: Response) => {
-  res.json({
-    status: "ok",
-    uptime: process.uptime(),
-    timestamp: new Date().toISOString(),
-  });
+  res.json({ status: "ok" });
 });
 
 // OAuth 2.1 endpoints (mounted at root — MCP expects /authorize, /token, /register, etc.)
