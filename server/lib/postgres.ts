@@ -13,7 +13,7 @@ function createPool(): Pool {
 
   const config: PoolConfig = {
     connectionString:
-      connectionString || "postgres://postgres:postgres@localhost:5432/csync_auth_dev",
+      connectionString || "postgres://postgres:postgres@localhost:5432/auth_dev",
     // Explicit pool limits
     max: isProduction ? 20 : 5,
     idleTimeoutMillis: 30_000,
