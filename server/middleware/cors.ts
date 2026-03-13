@@ -1,14 +1,13 @@
 import cors from "cors";
 
-const origin =
-  process.env.NODE_ENV === "development"
-    ? ["http://localhost:3001"]
-    : process.env.CORS_ORIGIN;
+// OAuth authorization server must be accessible from any MCP client origin.
+// In production, you may want to restrict this to known client origins.
+const origin = process.env.CORS_ORIGIN || true;
 
 const corsOptions = {
   origin,
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
