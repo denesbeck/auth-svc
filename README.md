@@ -8,15 +8,15 @@ Implements the [MCP authorization specification](https://modelcontextprotocol.io
 
 ```
 ┌─────────────┐         ┌──────────────────┐         ┌──────────────┐
-│  MCP Client  │──OAuth──▶  auth-svc (this) │◀──JWT───│  MCP Server  │
-│  (e.g. IDE)  │         │  Authorization   │         │  (your app)  │
+│  MCP Client │──OAuth──▶  auth-svc (this) │◀──JWT───│  MCP Server  │
+│  (e.g. IDE) │         │  Authorization   │         │  (your app)  │
 └─────────────┘         │  Server          │         └──────────────┘
-                         └────────┬─────────┘
-                                  │
-                         ┌────────┴─────────┐
-                         │  PostgreSQL       │
-                         │  Redis            │
-                         └──────────────────┘
+                        └────────┬─────────┘
+                                 │
+                        ┌────────┴─────────┐
+                        │  PostgreSQL      │
+                        │  Redis           │
+                        └──────────────────┘
 ```
 
 The MCP client authenticates users through this service, receives access tokens, and sends them as `Authorization: Bearer <token>` headers to your MCP server. Your MCP server validates tokens using the exported `bearerAuth` middleware.
