@@ -1,7 +1,10 @@
+import bcrypt from "bcrypt";
 import type { Request, Response } from "express";
 import { getPool } from "../lib/postgres";
 import logger from "../utils/logger";
 import { generateClientId, generateToken } from "../utils/pkce";
+
+const SALT_ROUNDS = 12;
 
 const pool = getPool();
 
@@ -94,9 +97,12 @@ export const registerClient = async (req: Request, res: Response) => {
 
   // Only generate client_secret for confidential clients
   let clientSecret: string | null = null;
+  let clientSecretHash: string | null = null;
   const clientSecretExpiresAt = 0;
   if (resolvedAuthMethod !== "none") {
     clientSecret = generateToken();
+    // Store hashed secret — plaintext is only returned once in the registration response
+    clientSecretHash = await bcrypt.hash(clientSecret, SALT_ROUNDS);
   }
 
   try {
@@ -108,7 +114,7 @@ export const registerClient = async (req: Request, res: Response) => {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
       [
         clientId,
-        clientSecret,
+        clientSecretHash,
         client_name || null,
         redirect_uris,
         resolvedGrantTypes,

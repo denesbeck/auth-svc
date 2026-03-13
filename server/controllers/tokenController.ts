@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import type { Request, Response } from "express";
 import { getPool } from "../lib/postgres";
 import { signAccessToken } from "../utils/jwt";
@@ -8,6 +9,74 @@ const pool = getPool();
 
 function getIssuer(): string {
   return process.env.ISSUER_URL || `http://localhost:${process.env.PORT || 4001}`;
+}
+
+/**
+ * Authenticates the client based on its registered token_endpoint_auth_method.
+ * For "client_secret_post", verifies the submitted client_secret against the stored bcrypt hash.
+ * For "none" (public clients), no secret is required.
+ * Returns true if authentication succeeds, false otherwise (and sends error response).
+ */
+async function authenticateClient(
+  req: Request,
+  res: Response,
+  clientId: string,
+): Promise<boolean> {
+  let client: {
+    client_id: string;
+    client_secret: string | null;
+    token_endpoint_auth_method: string;
+  };
+  try {
+    const { rows } = await pool.query(
+      `SELECT client_id, client_secret, token_endpoint_auth_method
+       FROM oauth_clients WHERE client_id = $1`,
+      [clientId],
+    );
+    if (rows.length === 0) {
+      res.status(401).json({
+        error: "invalid_client",
+        error_description: "Unknown client_id.",
+      });
+      return false;
+    }
+    client = rows[0];
+  } catch (error) {
+    logger.error("Client lookup failed:", error instanceof Error ? error.message : error);
+    res.status(500).json({
+      error: "server_error",
+      error_description: "Unable to authenticate client.",
+    });
+    return false;
+  }
+
+  if (client.token_endpoint_auth_method === "client_secret_post") {
+    const clientSecret = req.body.client_secret;
+    if (!clientSecret) {
+      res.status(401).json({
+        error: "invalid_client",
+        error_description: "client_secret is required for confidential clients.",
+      });
+      return false;
+    }
+    if (!client.client_secret) {
+      res.status(401).json({
+        error: "invalid_client",
+        error_description: "Client has no secret configured.",
+      });
+      return false;
+    }
+    const valid = await bcrypt.compare(clientSecret, client.client_secret);
+    if (!valid) {
+      res.status(401).json({
+        error: "invalid_client",
+        error_description: "Invalid client_secret.",
+      });
+      return false;
+    }
+  }
+  // For token_endpoint_auth_method === "none" (public clients), no secret check needed.
+  return true;
 }
 
 /**
@@ -52,6 +121,10 @@ async function handleAuthorizationCode(req: Request, res: Response) {
     });
     return;
   }
+
+  // Authenticate client (verifies client_secret for confidential clients)
+  const authenticated = await authenticateClient(req, res, client_id);
+  if (!authenticated) return;
 
   // Validate code_verifier format
   if (!isValidCodeVerifier(code_verifier)) {
@@ -215,6 +288,10 @@ async function handleRefreshToken(req: Request, res: Response) {
     });
     return;
   }
+
+  // Authenticate client (verifies client_secret for confidential clients)
+  const authenticated = await authenticateClient(req, res, client_id);
+  if (!authenticated) return;
 
   // Look up the refresh token
   let tokenRecord: {
