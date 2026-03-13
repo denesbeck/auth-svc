@@ -1,42 +1,41 @@
 {
   "name": "auth-svc-server",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && NODE_ENV=production PORT=3000 node ./dist/server/index.js",
+    "start": "tsc && NODE_ENV=production node ./dist/server/index.js",
     "compile": "tsc",
     "db:up": "docker-compose up -d",
-    "dev": "docker-compose up -d && NODE_ENV=development PORT=4001 nodemon index.ts"
+    "dev": "docker-compose up -d && NODE_ENV=development DEBUG=true PORT=4001 nodemon index.ts",
+    "create-user": "npx ts-node scripts/create-user.ts",
+    "test": "vitest run --reporter=verbose"
   },
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "OAuth 2.1 Authorization Server for MCP",
   "devDependencies": {
-    "@types/cookie-parser": "^1.4.9",
+    "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/pg": "^8.15.5",
-    "@types/qrcode": "^1.5.5",
     "dotenv": "^17.2.2",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "vitest": "^4.1.0"
   },
   "dependencies": {
-    "chalk": "^5.6.0",
-    "cookie-parser": "^1.4.7",
+    "bcrypt": "^6.0.0",
+    "chalk": "^4.1.2",
     "cors": "^2.8.5",
     "date-fns": "^4.1.0",
     "express": "^5.1.0",
     "express-rate-limit": "^8.1.0",
-    "express-validator": "^7.2.1",
     "helmet": "^8.1.0",
     "ioredis": "^5.7.0",
     "jsonwebtoken": "^9.0.2",
-    "pg": "^8.16.3",
-    "qrcode": "^1.5.4",
-    "time2fa": "^1.4.2"
+    "pg": "^8.16.3"
   }
 }

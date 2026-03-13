@@ -1,14 +1,12 @@
 import Redis from "ioredis";
+import logger from "../utils/logger";
 
-export default function redis() {
-  let instance: Redis | null = null;
+let client: Redis | null = null;
 
-  return {
-    getInstance: () => {
-      if (!instance) {
-        instance = new Redis();
-      }
-      return instance;
-    },
-  };
+export function getRedis(): Redis {
+  if (!client) {
+    client = new Redis(process.env.REDIS_URL || "redis://localhost:6379");
+    client.on("error", (err) => logger.error("Redis error:", err.message));
+  }
+  return client;
 }
