@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import type { Request, Response } from "express";
 import { getPool } from "../lib/postgres";
 import { getRedis } from "../lib/redis";
+import { clearFailedAttempts, isAccountLocked, recordFailedAttempt } from "../utils/accountLockout";
 import logger from "../utils/logger";
 import { generateAuthorizationCode } from "../utils/pkce";
 import { renderConsentPage, renderErrorPage, renderLoginPage } from "../views/consent";
@@ -12,6 +13,15 @@ const redis = getRedis();
 // Store pending authorization requests in Redis (keyed by a session token)
 const PENDING_AUTH_PREFIX = "pending_auth:";
 const PENDING_AUTH_TTL = 600; // 10 minutes
+
+/** Scopes supported by this authorization server. */
+const SUPPORTED_SCOPES = new Set(["mcp:tools", "mcp:resources", "mcp:prompts"]);
+
+/** Basic email format validation. */
+function isValidEmail(email: string): boolean {
+  // RFC 5322 simplified — must have local@domain with at least one dot in domain
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 254;
+}
 
 /**
  * GET /authorize
@@ -98,13 +108,31 @@ export const authorize = async (req: Request, res: Response) => {
     return;
   }
 
+  // Validate requested scopes against supported scopes
+  const resolvedScope = scope || client.scope || "";
+  if (resolvedScope) {
+    const requestedScopes = resolvedScope.split(" ").filter(Boolean);
+    for (const s of requestedScopes) {
+      if (!SUPPORTED_SCOPES.has(s)) {
+        redirectWithError(
+          res,
+          resolvedRedirectUri,
+          "invalid_scope",
+          `Unsupported scope: '${s}'. Supported scopes: ${Array.from(SUPPORTED_SCOPES).join(", ")}`,
+          state,
+        );
+        return;
+      }
+    }
+  }
+
   // Store the authorization request in Redis so we can retrieve it after login
   const sessionToken = generateAuthorizationCode(); // reuse as session ID
   const pendingAuth = {
     client_id,
     client_name: client.client_name,
     redirect_uri: resolvedRedirectUri,
-    scope: scope || client.scope || "",
+    scope: resolvedScope,
     state: state || "",
     code_challenge,
     code_challenge_method: method,
@@ -149,6 +177,27 @@ export const authorizeLogin = async (req: Request, res: Response) => {
     return;
   }
 
+  // Validate email format
+  if (!isValidEmail(email)) {
+    res.status(400).send(renderLoginPage(session_token, "Please enter a valid email address."));
+    return;
+  }
+
+  // Check account lockout before doing any database work
+  const lockoutRemaining = await isAccountLocked(email);
+  if (lockoutRemaining > 0) {
+    const minutes = Math.ceil(lockoutRemaining / 60);
+    res
+      .status(429)
+      .send(
+        renderLoginPage(
+          session_token,
+          `Account temporarily locked due to too many failed attempts. Try again in ${minutes} minute${minutes !== 1 ? "s" : ""}.`,
+        ),
+      );
+    return;
+  }
+
   // Retrieve pending auth request
   let pendingAuth: {
     client_id: string;
@@ -187,15 +236,20 @@ export const authorizeLogin = async (req: Request, res: Response) => {
       [email],
     );
     if (rows.length === 0) {
+      await recordFailedAttempt(email);
       res.status(401).send(renderLoginPage(session_token, "Invalid email or password."));
       return;
     }
 
     const valid = await bcrypt.compare(password, rows[0].password_hash);
     if (!valid) {
+      await recordFailedAttempt(email);
       res.status(401).send(renderLoginPage(session_token, "Invalid email or password."));
       return;
     }
+
+    // Successful login — clear failed attempts
+    await clearFailedAttempts(email);
     user = { id: rows[0].id, email: rows[0].email };
   } catch (error) {
     logger.error(error);
