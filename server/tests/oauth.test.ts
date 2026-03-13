@@ -55,8 +55,10 @@ describe("Discovery", () => {
     expect(body.scopes_supported).toEqual(
       expect.arrayContaining(["mcp:tools", "mcp:resources", "mcp:prompts"]),
     );
-    // Should NOT advertise a /revoke endpoint (not implemented)
-    expect(body.revocation_endpoint).toBeUndefined();
+    // Revocation endpoint (RFC 7009)
+    expect(body.revocation_endpoint).toBe(`${BASE_URL}/revoke`);
+    expect(body.revocation_endpoint_auth_methods_supported).toContain("none");
+    expect(body.revocation_endpoint_auth_methods_supported).toContain("client_secret_post");
   });
 });
 
@@ -554,9 +556,10 @@ describe("Token Endpoint — Refresh Token", () => {
       }).toString(),
     });
 
-    expect(res.status).toBe(400);
+    // Unknown client_id is rejected by client authentication before token lookup
+    expect(res.status).toBe(401);
     const body = await res.json();
-    expect(body.error).toBe("invalid_grant");
+    expect(body.error).toBe("invalid_client");
   });
 
   it("POST /token rejects scope escalation on refresh", async () => {
@@ -640,8 +643,9 @@ describe("Health Check", () => {
 
     const body = await res.json();
     expect(body.status).toBe("ok");
-    expect(body.uptime).toBeTypeOf("number");
-    expect(body.timestamp).toBeDefined();
+    // uptime and timestamp removed to prevent information disclosure
+    expect(body.uptime).toBeUndefined();
+    expect(body.timestamp).toBeUndefined();
   });
 });
 
