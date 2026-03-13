@@ -2,9 +2,9 @@
   "name": "auth-svc",
   "version": "2.0.0",
   "scripts": {
-    "dev": "npm run dev --workspace server",
-    "start": "npm start --workspace server",
-    "test": "npm test --workspace server",
+    "dev": "bun run --filter server dev",
+    "start": "bun run --filter server start",
+    "test": "bun run --filter server test",
     "lint": "biome check .",
     "lint:fix": "biome check --write ."
   },

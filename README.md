@@ -23,7 +23,7 @@ The MCP client authenticates users through this service, receives access tokens,
 
 ## Tech Stack
 
-- **Runtime:** Node.js + TypeScript
+- **Runtime:** Bun + TypeScript
 - **Framework:** Express 5
 - **Database:** PostgreSQL (clients, users, authorization codes, refresh tokens)
 - **Cache:** Redis (authorization session state)
@@ -36,20 +36,20 @@ The MCP client authenticates users through this service, receives access tokens,
 cd server
 
 # 1. Install dependencies
-npm install
+bun install
 
 # 2. Configure environment
 cp .env.example .env
 # Edit .env — set JWT_SECRET to a cryptographically random string
 
 # 3. Start PostgreSQL + Redis
-npm run db:up
+bun run db:up
 
 # 4. Create a user
-npm run create-user user@example.com yourpassword
+bun run create-user user@example.com yourpassword
 
 # 5. Start the dev server
-npm run dev
+bun run dev
 ```
 
 The server starts at `http://localhost:4001`.
@@ -249,25 +249,25 @@ See [`config/db/init.sql`](server/config/db/init.sql) for the full schema.
 
 ```bash
 # Start infrastructure (Postgres, Redis, pgAdmin)
-npm run db:up
+bun run db:up
 
 # Start dev server with hot reload
-npm run dev
+bun run dev
 
 # Create a user
-npm run create-user <email> <password>
+bun run create-user <email> <password>
 
 # Open the login page in your browser (registers a client + generates PKCE)
 ./scripts/open-login.sh
 
 # Run the integration test suite (server must be running)
-npm test
+bun test
 
 # Compile TypeScript
-npm run compile
+bun run compile
 
 # Start production server
-npm run start
+bun run start
 ```
 
 ## Testing
@@ -276,10 +276,10 @@ npm run start
 
 ```bash
 # Start the server first
-npm run dev
+bun run dev
 
 # In another terminal
-npm test
+bun test
 ```
 
 ```

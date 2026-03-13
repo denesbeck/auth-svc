@@ -3,11 +3,11 @@
   "version": "2.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && NODE_ENV=production node ./dist/server/index.js",
+    "start": "NODE_ENV=production bun index.ts",
     "compile": "tsc",
     "db:up": "docker-compose up -d",
-    "dev": "docker-compose up -d && NODE_ENV=development DEBUG=true PORT=4001 nodemon index.ts",
-    "create-user": "npx ts-node scripts/create-user.ts",
+    "dev": "docker-compose up -d && NODE_ENV=development DEBUG=true PORT=4001 bun --watch index.ts",
+    "create-user": "bun run scripts/create-user.ts",
     "test": "vitest run --reporter=verbose"
   },
   "author": "",
@@ -20,9 +20,6 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/pg": "^8.18.0",
     "dotenv": "^17.3.1",
-    "nodemon": "^3.1.14",
-    "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3",
     "vitest": "^4.1.0"
   },
