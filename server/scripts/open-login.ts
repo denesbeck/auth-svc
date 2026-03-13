@@ -3,8 +3,9 @@
  *
  * Usage: npx ts-node scripts/open-login.ts
  */
-import crypto from "crypto";
-import { exec } from "child_process";
+
+import { exec } from "node:child_process";
+import crypto from "node:crypto";
 
 const BASE_URL = process.env.ISSUER_URL || "http://localhost:4001";
 const REDIRECT_URI = "http://localhost:3000/oauth/callback";
@@ -56,11 +57,7 @@ async function main() {
 
   // 4. Open in browser (macOS: open, Linux: xdg-open, Windows: start)
   const openCmd =
-    process.platform === "darwin"
-      ? "open"
-      : process.platform === "win32"
-        ? "start"
-        : "xdg-open";
+    process.platform === "darwin" ? "open" : process.platform === "win32" ? "start" : "xdg-open";
 
   exec(`${openCmd} "${url.toString()}"`, (err) => {
     if (err) {

@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
-import express, { Request, Response } from "express";
-import logger from "./utils/logger";
+import express, { type Request, type Response } from "express";
 import helmet from "helmet";
+import logger from "./utils/logger";
 
 dotenv.config();
 
@@ -9,7 +9,7 @@ dotenv.config();
 import { corsMiddleware } from "./middleware/cors";
 import { headersMiddleware } from "./middleware/headers";
 import { loggerMiddleware } from "./middleware/logger";
-import { authLimiter, oauthLimiter, healthLimiter } from "./middleware/rateLimiters";
+import { healthLimiter, oauthLimiter } from "./middleware/rateLimiters";
 
 // Import OAuth routes
 import oauth from "./routes/oauthRoutes";
@@ -28,9 +28,7 @@ app.use(
         // Disable upgrade-insecure-requests in development —
         // it causes browsers to rewrite http:// form actions to https://,
         // breaking the OAuth consent flow on localhost.
-        ...(process.env.NODE_ENV !== "production"
-          ? { "upgrade-insecure-requests": null }
-          : {}),
+        ...(process.env.NODE_ENV !== "production" ? { "upgrade-insecure-requests": null } : {}),
       },
     },
     // Disable HSTS in development — once a browser sees this header,

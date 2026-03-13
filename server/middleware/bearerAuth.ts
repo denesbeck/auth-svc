@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from "express";
-import { verifyAccessToken, AccessTokenPayload } from "../utils/jwt";
+import type { NextFunction, Request, Response } from "express";
+import { type AccessTokenPayload, verifyAccessToken } from "../utils/jwt";
 import logger from "../utils/logger";
 
 // Extend Express Request to carry the authenticated token payload
@@ -29,10 +29,7 @@ export function bearerAuth(...requiredScopes: string[]) {
     const issuer = getIssuer();
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      res.status(401).set(
-        "WWW-Authenticate",
-        `Bearer realm="mcp"`,
-      ).json({ error: "unauthorized" });
+      res.status(401).set("WWW-Authenticate", `Bearer realm="mcp"`).json({ error: "unauthorized" });
       return;
     }
 
@@ -41,12 +38,15 @@ export function bearerAuth(...requiredScopes: string[]) {
     let payload: AccessTokenPayload;
     try {
       payload = verifyAccessToken(token, issuer);
-    } catch (error) {
+    } catch (_error) {
       logger.debug("Invalid bearer token");
-      res.status(401).set(
-        "WWW-Authenticate",
-        `Bearer realm="mcp", error="invalid_token", error_description="The access token is invalid or expired"`,
-      ).json({ error: "invalid_token" });
+      res
+        .status(401)
+        .set(
+          "WWW-Authenticate",
+          `Bearer realm="mcp", error="invalid_token", error_description="The access token is invalid or expired"`,
+        )
+        .json({ error: "invalid_token" });
       return;
     }
 
@@ -55,13 +55,16 @@ export function bearerAuth(...requiredScopes: string[]) {
       const tokenScopes = payload.scope ? payload.scope.split(" ") : [];
       const missing = requiredScopes.filter((s) => !tokenScopes.includes(s));
       if (missing.length > 0) {
-        res.status(403).set(
-          "WWW-Authenticate",
-          `Bearer realm="mcp", error="insufficient_scope", scope="${requiredScopes.join(" ")}"`,
-        ).json({
-          error: "insufficient_scope",
-          error_description: `Missing required scope(s): ${missing.join(", ")}`,
-        });
+        res
+          .status(403)
+          .set(
+            "WWW-Authenticate",
+            `Bearer realm="mcp", error="insufficient_scope", scope="${requiredScopes.join(" ")}"`,
+          )
+          .json({
+            error: "insufficient_scope",
+            error_description: `Missing required scope(s): ${missing.join(", ")}`,
+          });
         return;
       }
     }

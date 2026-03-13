@@ -14,28 +14,28 @@
   "license": "ISC",
   "description": "OAuth 2.1 Authorization Server for MCP",
   "devDependencies": {
-    "@types/bcrypt": "^5.0.2",
+    "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.3",
+    "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/pg": "^8.15.5",
-    "dotenv": "^17.2.2",
-    "nodemon": "^3.1.10",
+    "@types/pg": "^8.18.0",
+    "dotenv": "^17.3.1",
+    "nodemon": "^3.1.14",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.9.2",
+    "typescript": "^5.9.3",
     "vitest": "^4.1.0"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
     "chalk": "^4.1.2",
-    "cors": "^2.8.5",
+    "cors": "^2.8.6",
     "date-fns": "^4.1.0",
-    "express": "^5.1.0",
-    "express-rate-limit": "^8.1.0",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.3.1",
     "helmet": "^8.1.0",
-    "ioredis": "^5.7.0",
-    "jsonwebtoken": "^9.0.2",
-    "pg": "^8.16.3"
+    "ioredis": "^5.10.0",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.20.0"
   }
 }

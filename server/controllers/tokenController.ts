@@ -1,8 +1,8 @@
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import { getPool } from "../lib/postgres";
-import { verifyCodeChallenge, isValidCodeVerifier, generateToken } from "../utils/pkce";
 import { signAccessToken } from "../utils/jwt";
 import logger from "../utils/logger";
+import { generateToken, isValidCodeVerifier, verifyCodeChallenge } from "../utils/pkce";
 
 const pool = getPool();
 
@@ -146,7 +146,9 @@ async function handleAuthorizationCode(req: Request, res: Response) {
   }
 
   // Verify PKCE
-  if (!verifyCodeChallenge(code_verifier, authCode.code_challenge, authCode.code_challenge_method)) {
+  if (
+    !verifyCodeChallenge(code_verifier, authCode.code_challenge, authCode.code_challenge_method)
+  ) {
     res.status(400).json({
       error: "invalid_grant",
       error_description: "PKCE code_verifier verification failed.",
@@ -156,10 +158,7 @@ async function handleAuthorizationCode(req: Request, res: Response) {
 
   // Mark the code as used
   try {
-    await pool.query(
-      `UPDATE authorization_codes SET used = true WHERE code = $1`,
-      [code],
-    );
+    await pool.query(`UPDATE authorization_codes SET used = true WHERE code = $1`, [code]);
   } catch (error) {
     logger.error(error);
   }
@@ -309,11 +308,19 @@ async function handleRefreshToken(req: Request, res: Response) {
   const pgClient = await pool.connect();
   try {
     await pgClient.query("BEGIN");
-    await pgClient.query(`UPDATE refresh_tokens SET revoked = true WHERE token = $1`, [refresh_token]);
+    await pgClient.query(`UPDATE refresh_tokens SET revoked = true WHERE token = $1`, [
+      refresh_token,
+    ]);
     await pgClient.query(
       `INSERT INTO refresh_tokens (token, client_id, user_id, scope, expires_at)
        VALUES ($1, $2, $3, $4, $5)`,
-      [newRefreshToken, tokenRecord.client_id, tokenRecord.user_id, resolvedScope, refreshExpiresAt],
+      [
+        newRefreshToken,
+        tokenRecord.client_id,
+        tokenRecord.user_id,
+        resolvedScope,
+        refreshExpiresAt,
+      ],
     );
     await pgClient.query("COMMIT");
   } catch (error) {

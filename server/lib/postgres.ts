@@ -1,4 +1,4 @@
-import { Pool, PoolConfig } from "pg";
+import { Pool, type PoolConfig } from "pg";
 import logger from "../utils/logger";
 
 let pool: Pool | null = null;
@@ -6,8 +6,7 @@ let pool: Pool | null = null;
 function createPool(): Pool {
   const config: PoolConfig = {
     connectionString:
-      process.env.DATABASE_URL ||
-      "postgres://postgres:postgres@localhost:5432/csync_auth_dev",
+      process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/csync_auth_dev",
   };
 
   // Only enable SSL if DATABASE_URL contains sslmode or SSL env is set

@@ -4,6 +4,7 @@
  * Usage: npx ts-node scripts/create-user.ts <email> <password>
  */
 import dotenv from "dotenv";
+
 dotenv.config();
 
 import bcrypt from "bcrypt";

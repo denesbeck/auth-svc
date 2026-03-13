@@ -146,11 +146,12 @@ export function renderConsentPage(params: {
     "mcp:admin": "Administrative access",
   };
 
-  const scopesHtml = params.scopes.length > 0
-    ? `<div class="scopes">
+  const scopesHtml =
+    params.scopes.length > 0
+      ? `<div class="scopes">
         ${params.scopes.map((s) => `<div class="scope-item">${escapeHtml(scopeDescriptions[s] || s)}</div>`).join("")}
        </div>`
-    : `<div class="scopes"><div class="scope-item">Basic access</div></div>`;
+      : `<div class="scopes"><div class="scope-item">Basic access</div></div>`;
 
   return baseLayout(
     "Authorize",

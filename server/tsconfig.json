@@ -1,8 +1,6 @@
 {
   "ts-node": {
-    "require": [
-      "tsconfig-paths/register"
-    ]
+    "require": ["tsconfig-paths/register"]
   },
   "compilerOptions": {
     "module": "commonjs",
@@ -12,11 +10,6 @@
     "removeComments": true,
     "outDir": "./dist/server"
   },
-  "include": [
-    "**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    "tests"
-  ]
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "tests"]
 }

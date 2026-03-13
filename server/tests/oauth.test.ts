@@ -1,5 +1,5 @@
-import crypto from "crypto";
-import { describe, it, expect, beforeAll } from "vitest";
+import crypto from "node:crypto";
+import { beforeAll, describe, expect, it } from "vitest";
 
 /**
  * Integration tests for the OAuth 2.1 authorization server.
@@ -241,7 +241,7 @@ describe("Authorization Flow", () => {
     // Extract session_token from hidden input
     const match = html.match(/name="session_token"\s+value="([^"]+)"/);
     expect(match).not.toBeNull();
-    sessionToken = match![1];
+    sessionToken = match?.[1];
   });
 
   it("Step 2: POST /authorize/login with wrong password returns login page with error", async () => {
@@ -301,7 +301,7 @@ describe("Authorization Flow", () => {
     const authorizeRes = await fetch(authorizeUrl.toString());
     const authorizeHtml = await authorizeRes.text();
     const tokenMatch = authorizeHtml.match(/name="session_token"\s+value="([^"]+)"/);
-    const freshSession = tokenMatch![1];
+    const freshSession = tokenMatch?.[1];
 
     // Login
     await fetch(`${BASE_URL}/authorize/login`, {
@@ -647,10 +647,7 @@ describe("Health Check", () => {
 
 // ── Helper: Run a full auth flow to get an authorization code ────────────────
 
-async function getAuthorizationCode(
-  codeChallenge: string,
-  state: string,
-): Promise<string> {
+async function getAuthorizationCode(codeChallenge: string, state: string): Promise<string> {
   // 1. GET /authorize
   const authorizeUrl = new URL(`${BASE_URL}/authorize`);
   authorizeUrl.searchParams.set("response_type", "code");
@@ -664,7 +661,7 @@ async function getAuthorizationCode(
   const authorizeRes = await fetch(authorizeUrl.toString());
   const authorizeHtml = await authorizeRes.text();
   const tokenMatch = authorizeHtml.match(/name="session_token"\s+value="([^"]+)"/);
-  const sessionToken = tokenMatch![1];
+  const sessionToken = tokenMatch?.[1];
 
   // 2. POST /authorize/login
   await fetch(`${BASE_URL}/authorize/login`, {

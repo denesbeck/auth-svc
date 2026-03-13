@@ -1,4 +1,4 @@
-import crypto from "crypto";
+import crypto from "node:crypto";
 
 /**
  * Validates a code_verifier against a stored code_challenge using S256.
@@ -11,10 +11,7 @@ export function verifyCodeChallenge(
   method: string = "S256",
 ): boolean {
   if (method === "S256") {
-    const computed = crypto
-      .createHash("sha256")
-      .update(codeVerifier, "ascii")
-      .digest("base64url");
+    const computed = crypto.createHash("sha256").update(codeVerifier, "ascii").digest("base64url");
     return computed === codeChallenge;
   }
   // plain method (only for clients that truly cannot do S256)

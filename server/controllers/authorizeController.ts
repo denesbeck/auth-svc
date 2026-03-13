@@ -1,10 +1,10 @@
-import { Request, Response } from "express";
 import bcrypt from "bcrypt";
+import type { Request, Response } from "express";
 import { getPool } from "../lib/postgres";
 import { getRedis } from "../lib/redis";
-import { generateAuthorizationCode } from "../utils/pkce";
-import { renderConsentPage, renderLoginPage, renderErrorPage } from "../views/consent";
 import logger from "../utils/logger";
+import { generateAuthorizationCode } from "../utils/pkce";
+import { renderConsentPage, renderErrorPage, renderLoginPage } from "../views/consent";
 
 const pool = getPool();
 const redis = getRedis();
@@ -32,17 +32,13 @@ export const authorize = async (req: Request, res: Response) => {
 
   // Validate response_type
   if (response_type !== "code") {
-    res.status(400).send(
-      renderErrorPage("Invalid request", "response_type must be 'code'."),
-    );
+    res.status(400).send(renderErrorPage("Invalid request", "response_type must be 'code'."));
     return;
   }
 
   // Validate client_id
   if (!client_id) {
-    res.status(400).send(
-      renderErrorPage("Invalid request", "client_id is required."),
-    );
+    res.status(400).send(renderErrorPage("Invalid request", "client_id is required."));
     return;
   }
 
@@ -59,9 +55,7 @@ export const authorize = async (req: Request, res: Response) => {
       [client_id],
     );
     if (rows.length === 0) {
-      res.status(400).send(
-        renderErrorPage("Invalid client", "Unknown client_id."),
-      );
+      res.status(400).send(renderErrorPage("Invalid client", "Unknown client_id."));
       return;
     }
     client = rows[0];
@@ -74,21 +68,33 @@ export const authorize = async (req: Request, res: Response) => {
   // Validate redirect_uri
   const resolvedRedirectUri = redirect_uri || client.redirect_uris[0];
   if (!resolvedRedirectUri || !client.redirect_uris.includes(resolvedRedirectUri)) {
-    res.status(400).send(
-      renderErrorPage("Invalid request", "redirect_uri does not match any registered URI."),
-    );
+    res
+      .status(400)
+      .send(renderErrorPage("Invalid request", "redirect_uri does not match any registered URI."));
     return;
   }
 
   // PKCE is required (OAuth 2.1 / MCP)
   if (!code_challenge) {
-    redirectWithError(res, resolvedRedirectUri, "invalid_request", "code_challenge is required (PKCE).", state);
+    redirectWithError(
+      res,
+      resolvedRedirectUri,
+      "invalid_request",
+      "code_challenge is required (PKCE).",
+      state,
+    );
     return;
   }
 
   const method = code_challenge_method || "S256";
   if (method !== "S256") {
-    redirectWithError(res, resolvedRedirectUri, "invalid_request", "Only S256 code_challenge_method is supported.", state);
+    redirectWithError(
+      res,
+      resolvedRedirectUri,
+      "invalid_request",
+      "Only S256 code_challenge_method is supported.",
+      state,
+    );
     return;
   }
 
@@ -113,7 +119,13 @@ export const authorize = async (req: Request, res: Response) => {
     );
   } catch (error) {
     logger.error(error);
-    redirectWithError(res, resolvedRedirectUri, "server_error", "Unable to process authorization request.", state);
+    redirectWithError(
+      res,
+      resolvedRedirectUri,
+      "server_error",
+      "Unable to process authorization request.",
+      state,
+    );
     return;
   }
 
@@ -131,9 +143,9 @@ export const authorizeLogin = async (req: Request, res: Response) => {
   const { email, password, session_token } = req.body;
 
   if (!email || !password || !session_token) {
-    res.status(400).send(
-      renderErrorPage("Invalid request", "Email, password, and session are required."),
-    );
+    res
+      .status(400)
+      .send(renderErrorPage("Invalid request", "Email, password, and session are required."));
     return;
   }
 
@@ -150,9 +162,14 @@ export const authorizeLogin = async (req: Request, res: Response) => {
   try {
     const data = await redis.get(PENDING_AUTH_PREFIX + session_token);
     if (!data) {
-      res.status(400).send(
-        renderErrorPage("Session expired", "Authorization session has expired. Please start over."),
-      );
+      res
+        .status(400)
+        .send(
+          renderErrorPage(
+            "Session expired",
+            "Authorization session has expired. Please start over.",
+          ),
+        );
       return;
     }
     pendingAuth = JSON.parse(data);
@@ -240,9 +257,14 @@ export const authorizeConsent = async (req: Request, res: Response) => {
   try {
     const data = await redis.get(PENDING_AUTH_PREFIX + session_token);
     if (!data) {
-      res.status(400).send(
-        renderErrorPage("Session expired", "Authorization session has expired. Please start over."),
-      );
+      res
+        .status(400)
+        .send(
+          renderErrorPage(
+            "Session expired",
+            "Authorization session has expired. Please start over.",
+          ),
+        );
       return;
     }
     pendingAuth = JSON.parse(data);
@@ -262,7 +284,13 @@ export const authorizeConsent = async (req: Request, res: Response) => {
 
   // User denied
   if (decision !== "approve") {
-    redirectWithError(res, pendingAuth.redirect_uri, "access_denied", "User denied the authorization request.", pendingAuth.state);
+    redirectWithError(
+      res,
+      pendingAuth.redirect_uri,
+      "access_denied",
+      "User denied the authorization request.",
+      pendingAuth.state,
+    );
     return;
   }
 
@@ -289,7 +317,13 @@ export const authorizeConsent = async (req: Request, res: Response) => {
     );
   } catch (error) {
     logger.error(error);
-    redirectWithError(res, pendingAuth.redirect_uri, "server_error", "Unable to generate authorization code.", pendingAuth.state);
+    redirectWithError(
+      res,
+      pendingAuth.redirect_uri,
+      "server_error",
+      "Unable to generate authorization code.",
+      pendingAuth.state,
+    );
     return;
   }
 

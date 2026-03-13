@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import { getPool } from "../lib/postgres";
-import { generateClientId, generateToken } from "../utils/pkce";
 import logger from "../utils/logger";
+import { generateClientId, generateToken } from "../utils/pkce";
 
 const pool = getPool();
 
@@ -34,8 +34,7 @@ export const registerClient = async (req: Request, res: Response) => {
   for (const uri of redirect_uris) {
     try {
       const parsed = new URL(uri);
-      const isLocalhost =
-        parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1";
+      const isLocalhost = parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1";
       if (!isLocalhost && parsed.protocol !== "https:") {
         res.status(400).json({
           error: "invalid_redirect_uri",
@@ -95,7 +94,7 @@ export const registerClient = async (req: Request, res: Response) => {
 
   // Only generate client_secret for confidential clients
   let clientSecret: string | null = null;
-  let clientSecretExpiresAt = 0;
+  const clientSecretExpiresAt = 0;
   if (resolvedAuthMethod !== "none") {
     clientSecret = generateToken();
   }

@@ -1,7 +1,7 @@
 import express from "express";
+import { authorize, authorizeConsent, authorizeLogin } from "../controllers/authorizeController";
 import { authorizationServerMetadata } from "../controllers/metadataController";
 import { registerClient } from "../controllers/registrationController";
-import { authorize, authorizeLogin, authorizeConsent } from "../controllers/authorizeController";
 import { token } from "../controllers/tokenController";
 import { authLimiter } from "../middleware/rateLimiters";
 

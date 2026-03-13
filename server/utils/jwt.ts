@@ -1,4 +1,4 @@
-import crypto from "crypto";
+import crypto from "node:crypto";
 import jwt from "jsonwebtoken";
 
 /**
@@ -64,10 +64,7 @@ export function signAccessToken(payload: {
 /**
  * Verifies and decodes an access token.
  */
-export function verifyAccessToken(
-  token: string,
-  issuer: string,
-): AccessTokenPayload {
+export function verifyAccessToken(token: string, issuer: string): AccessTokenPayload {
   return jwt.verify(token, getJwtSecret(), {
     issuer,
     audience: issuer,
